@@ -1,5 +1,5 @@
 import p5 from "p5";
-import { WIDTH, HEIGHT, FPS, TAMAYURA_BLUE } from "./modules/constants";
+import { FPS, TAMAYURA_BLUE } from "./modules/constants";
 import { nGon } from "./modules/functions";
 
 // 波紋
@@ -25,8 +25,8 @@ class Ripple {
   draw(p: p5) {
     // 透明になった後の処理
     if (this.trans <= -p.random(0, Ripple.maxWait)) {
-      this.x = p.random(0, WIDTH);
-      this.y = p.random(0, HEIGHT);
+      this.x = p.random(0, p.width);
+      this.y = p.random(0, p.height);
       this.r = 0;
       this.v = p.random(Ripple.minV, Ripple.maxV);
       this.trans = 1.0;
@@ -45,25 +45,23 @@ class Ripple {
 }
 
 const sketch = (p: p5) => {
-  const r: number = HEIGHT*0.42;
+  const rRate: number = 0.42;
   const v: number = 0.4;
-  const lineWidth: number = 10;
   const lineColor: p5.Color = p.color(TAMAYURA_BLUE);
   const ripple: Array<Ripple> = [];
 
   const magicCircle = (count: number) => {
-    p.strokeWeight(lineWidth);
+    p.strokeWeight(p.height*0.01);
     p.stroke(lineColor);
     p.noFill();
 
-    nGon(p, 3, WIDTH/2, HEIGHT/2, r, v*count);
-    nGon(p, 4, WIDTH/2, HEIGHT/2, r, -v*count);
+    nGon(p, 3, p.width/2, p.height/2, p.height*rRate, v*count);
+    nGon(p, 4, p.width/2, p.height/2, p.height*rRate, -v*count);
   }
 
   p.setup = () => {
+    p.createCanvas(p.windowWidth, p.windowHeight);
     p.frameRate(FPS);
-    p.createCanvas(WIDTH, HEIGHT);
-
     for(let i=0; i<3; i++) {
       ripple.push(new Ripple());
     }
@@ -74,6 +72,10 @@ const sketch = (p: p5) => {
     magicCircle(p.frameCount);
     ripple.forEach(r => {r.draw(p)});
   };
+
+  p.windowResized = () => {
+    p.resizeCanvas(p.windowWidth, p.windowHeight);
+  }
 };
 
 new p5(sketch);
