@@ -51,7 +51,7 @@ const sketch = (p: p5) => {
   const lineColor: p5.Color = p.color(TAMAYURA_BLUE);
   const ripple: Array<Ripple> = [];
 
-  const magicCircle = (count: number) {
+  const magicCircle = (count: number) => {
     p.strokeWeight(lineWidth);
     p.stroke(lineColor);
     p.noFill();
