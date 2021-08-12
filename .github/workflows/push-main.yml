@@ -8,10 +8,11 @@ jobs:
     name: Build and deploy
     runs-on: ubuntu-20.04
     strategy:
-      node-version:
-        - '16.x'
-      cache-key:
-        - 'v1'
+      matrix:
+        node-version:
+          - '16.x'
+        cache-key:
+          - 'v1'
     steps:
       - uses: actions/checkout@v2
       - name: Node.js ${{ matrix.node-version }} を使用します
