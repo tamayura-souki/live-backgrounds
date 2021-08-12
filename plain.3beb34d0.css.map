@@ -1,0 +1,1 @@
+{"version":3,"sources":["plain.css"],"names":[],"mappings":"AAAA,KACE,QAAS,CACT,QAAS,CACT,eACF","file":"plain.3beb34d0.css","sourceRoot":"../src/pages","sourcesContent":["body {\n  margin: 0;\n  height: 0;\n  overflow: hidden;\n}\n"]}
