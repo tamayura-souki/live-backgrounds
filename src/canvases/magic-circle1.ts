@@ -1,6 +1,6 @@
 import p5 from "p5";
 import { FPS, TAMAYURA_BLUE } from "./modules/constants";
-import { nGon } from "./modules/functions";
+import { Point, nGon } from "./modules/utils";
 
 // 波紋
 class Ripple {
@@ -11,8 +11,7 @@ class Ripple {
   static maxWait: number = 1;
   static lineWidth: number = 10;
 
-  x: number;
-  y: number;
+  pos: Point;
   r: number;
   v: number;
   trans: number;
@@ -25,8 +24,7 @@ class Ripple {
   draw(p: p5) {
     // 透明になった後の処理
     if (this.trans <= -p.random(0, Ripple.maxWait)) {
-      this.x = p.random(0, p.width);
-      this.y = p.random(0, p.height);
+      this.pos = {x: p.random(0, p.width), y: p.random(0, p.height)};
       this.r = 0;
       this.v = p.random(Ripple.minV, Ripple.maxV);
       this.trans = 1.0;
@@ -37,7 +35,7 @@ class Ripple {
     p.strokeWeight(Ripple.lineWidth*this.trans);
     p.stroke(this.color);
     this.color.setAlpha(this.trans*255);
-    p.circle(this.x, this.y, this.r);
+    p.circle(this.pos.x, this.pos.y, this.r);
     this.v -= Ripple.a;
     this.r += this.v;
     this.trans -= Ripple.transV;
@@ -55,8 +53,9 @@ const sketch = (p: p5) => {
     p.stroke(lineColor);
     p.noFill();
 
-    nGon(p, 3, p.width/2, p.height/2, p.height*rRate, v*count);
-    nGon(p, 4, p.width/2, p.height/2, p.height*rRate, -v*count);
+    const pos = {x: p.width/2, y: p.height/2};
+    nGon(p, 3, pos, p.height*rRate, v*count);
+    nGon(p, 4, pos, p.height*rRate, -v*count);
   }
 
   p.setup = () => {
