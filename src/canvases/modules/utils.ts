@@ -1,9 +1,18 @@
 import p5 from "p5";
+import { FPS } from "./constants";
 
 export type Point = {
   x: number,
   y: number
 }
+
+export type Color = {
+  r: number,
+  g: number,
+  b: number
+}
+
+export const frameToSecond = (frame: number): number => frame/FPS;
 
 export const nGon = (
   p5: p5,
