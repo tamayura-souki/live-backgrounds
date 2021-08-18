@@ -7,9 +7,17 @@ export type Point = {
 }
 
 export type Color = {
+  color?: number,
   r: number,
   g: number,
   b: number
+}
+export const isColor = (arg: any): arg is Color => {
+  return arg.color !== undefined;
+}
+
+export type ParamGUIs = {
+  [key: string]: p5.Element;
 }
 
 export const frameToSecond = (frame: number): number => frame/FPS;
@@ -31,4 +39,17 @@ export const nGon = (
   }
   p5.endShape(p5.CLOSE);
   p5.pop();
+}
+
+export const buildGUIs = (p5: p5, params: Object): ParamGUIs => {
+  let paramGUIs: ParamGUIs = {};
+  Object.entries(params).forEach(([key, value], i) => {
+    if (typeof value === 'number') {
+      let slider = p5.createSlider(0, 50, value);
+      slider.position(10, 30*i+10);
+      paramGUIs[key] = slider;
+    }else if (isColor(value)) {
+    }
+  });
+  return paramGUIs;
 }
