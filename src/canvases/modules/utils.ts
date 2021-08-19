@@ -7,13 +7,13 @@ export type Point = {
 }
 
 export type Color = {
-  color?: number,
   r: number,
   g: number,
   b: number
 }
 export const isColor = (arg: any): arg is Color => {
-  return arg.color !== undefined;
+  return (typeof arg.r === 'number') && (typeof arg.g === 'number')
+    && (typeof arg.b === 'number');
 }
 
 export type ParamGUIs = {
@@ -49,6 +49,11 @@ export const buildGUIs = (p5: p5, params: Object): ParamGUIs => {
       slider.position(10, 30*i+10);
       paramGUIs[key] = slider;
     }else if (isColor(value)) {
+      let colorPicker = p5.createColorPicker(
+        p5.color(value.r, value.g, value.b)
+      );
+      colorPicker.position(10, 30*i+10);
+      paramGUIs[key] = colorPicker;
     }
   });
   return paramGUIs;
