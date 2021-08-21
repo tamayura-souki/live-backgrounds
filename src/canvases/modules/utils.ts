@@ -6,6 +6,18 @@ export type Point = {
   y: number
 }
 
+export type ParamNum = {
+  val: number,
+  min: number,
+  max: number,
+  isInt: boolean,
+}
+export const isParamNum = (arg: any): arg is ParamNum => {
+  return (typeof arg.val === 'number')
+    && (typeof arg.min === 'number') && (typeof arg.max === 'number')
+    && (typeof arg.isInt === 'boolean');
+}
+
 export type Color = {
   r: number,
   g: number,
@@ -44,8 +56,11 @@ export const nGon = (
 export const buildGUIs = (p5: p5, params: Object): ParamGUIs => {
   let paramGUIs: ParamGUIs = {};
   Object.entries(params).forEach(([key, value], i) => {
-    if (typeof value === 'number') {
-      let slider = p5.createSlider(0, 50, value);
+    if (isParamNum(value)) {
+      let slider = p5.createSlider(
+        value.min, value.max, value.val,
+        value.isInt ? 1 : 0
+      );
       slider.position(10, 30*i+10);
       paramGUIs[key] = slider;
     }else if (isColor(value)) {
