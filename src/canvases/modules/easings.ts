@@ -1,9 +1,7 @@
-import { FPS } from "./constants";
-
 export const frameToEaseX = (
-  frameCount: number, period: number
+  frameCount: number, periodFrame: number
   ): number => {
-  let x = frameCount/FPS/period;
+  let x = frameCount/periodFrame;
   if (x > 1.0) x = 1.0;
   if (x < 0.0) x = 0.0;
   return x;

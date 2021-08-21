@@ -1,108 +1,94 @@
 import p5 from "p5";
 import { FPS } from "./modules/constants";
-import { ParamNum, Color, frameToSecond, ParamGUIs, buildGUIs} from "./modules/utils";
+import { ParamNum, Color, ParamGUIs, buildGUIs, updateGUIs} from "./modules/utils";
 import { easeInOutBack, frameToEaseX } from "./modules/easings";
 
 type Rect1Params = {
-  popPeriodF: ParamNum;
-  spreadTime: ParamNum;
-  waitTime: ParamNum;
-  spreadTime2: ParamNum;
-  rectMargine: ParamNum;
-  lineWidth: ParamNum;
+  period: ParamNum;
+  popPeriod: ParamNum;
   lineColor: Color;
   maxRectN: ParamNum;
 }
 
+const easing = (
+  passedFrame: number, spreadFrame: number,
+  waitFrame: number, spreadFrame2: number
+): number => {
+  if(passedFrame <= spreadFrame) {
+    return easeInOutBack(frameToEaseX(passedFrame, spreadFrame));
+  }else if (passedFrame <= spreadFrame+waitFrame) {
+    return 1.0;
+  }else if (passedFrame <= spreadFrame+waitFrame+spreadFrame2) {
+    const passedFrame2 = passedFrame-spreadFrame-waitFrame;
+    return 1.0 + 0.2 * frameToEaseX(passedFrame2, spreadFrame2);
+  }else {
+    return 2.0;
+  }
+}
+
 const sketch = (p: p5) => {
   let params: Rect1Params = {
-    popPeriodF: {val: 3, min: 1, max: 60, isInt: true},
-    spreadTime: {val: 3.0, min: 0.0, max: 60.0, isInt: false},
-    waitTime: {val: 2.0, min: 0.0, max: 30.0, isInt: false},
-    spreadTime2: {val: 1.0, min: 0.0, max: 60.0, isInt: false},
-    rectMargine: {val: 50, min: 0, max: p.width, isInt: true},
-    lineWidth: {val: 10, min: 1, max: 100, isInt: true},
+    period: {val: 6.0, min: 1.0, max: 30.0, isInt: false},
+    popPeriod: {val: 0.05, min: 0.01, max: 0.5, isInt: false},
     lineColor: {r: 0, g: 255, b:0 },
     maxRectN: {val: 8, min: 1, max: 50, isInt: true},
   }
 
-  class Rect {
-    static width: number;
-    static height: number;
+  const lineWidth = 10;
+  const rectMargine = 50;
 
-    startFrame: number;
-    startFrame2: number;
-    lineColor: p5.Color;
+  let periodFrame = params.period.val * FPS;
+  let popPeriodFrame = params.popPeriod.val * FPS;
+  let spreadFrame = periodFrame * 0.5;
+  let waitFrame = periodFrame * 0.3;
+  let spreadFrame2 = periodFrame * 0.2;
+  let rect_width = p.width-2*rectMargine;
+  let rect_height = p.height-2*rectMargine;
 
-    constructor(color: p5.Color) {
-      this.lineColor = color;
-      this.startFrame = p.frameCount;
-    }
+  const rectRate = (passedFrame: number): number =>
+    (easing(passedFrame, spreadFrame, waitFrame, spreadFrame2));
 
-    passedFrame() {
-      return p.frameCount-this.startFrame;
-    }
-
-    draw() {
-      let rectRate = 2.0;
-      const passedTime = frameToSecond(this.passedFrame());
-      if(passedTime <= params.spreadTime.val){
-        rectRate = easeInOutBack(
-          frameToEaseX(this.passedFrame(), params.spreadTime.val)
-        );
-      }else if(passedTime <= params.spreadTime.val+params.waitTime.val) {
-        rectRate = 1.0;
-        this.startFrame2 = p.frameCount;
-      }else if(passedTime <= params.spreadTime.val+params.waitTime.val+params.spreadTime2.val) {
-        rectRate = 1.0 + 0.2 * frameToEaseX(p.frameCount-this.startFrame2, params.spreadTime2.val);
-      }else {
-        this.startFrame = p.frameCount;
-      }
-      p.push();
-      p.strokeWeight(params.lineWidth.val);
-      p.stroke(this.lineColor);
-      p.noFill();
-      p.translate(p.width/2, p.height/2);
-      p.scale(rectRate);
-      p.rect(
-        -Rect.width/2, -Rect.height/2,
-        Rect.width, Rect.height
-      );
-      p.pop();
-    }
+  const updateStat = () => {
+    periodFrame = params.period.val * FPS;
+    popPeriodFrame = params.popPeriod.val * FPS;
+    spreadFrame = periodFrame * 0.5;
+    waitFrame = periodFrame * 0.35;
+    spreadFrame2 = periodFrame * 0.15;
+    rect_width = p.width-2*rectMargine;
+    rect_height = p.height-2*rectMargine;
   }
 
-  const rects: Array<Rect> = [];
-  let i=0;
   let paramGUIs: ParamGUIs;
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.frameRate(FPS);
 
+    updateStat();
+
     paramGUIs = buildGUIs(p, params);
-    Rect.width = p.width-2*params.rectMargine.val;
-    Rect.height = p.height-2*params.rectMargine.val;
+    p.strokeWeight(lineWidth);
+    p.noFill();
   }
 
   p.draw = () => {
     p.clear();
+    updateGUIs(params, paramGUIs);
+    updateStat();
 
-    if(p.frameCount%params.popPeriodF.val==0 && i < params.maxRectN.val) {
-      rects.push(new Rect(p.color(
-        params.lineColor.r, params.lineColor.g, params.lineColor.b,
+    for(let i=0; i < params.maxRectN.val; i++) {
+      p.push();
+      p.stroke(p.color(params.lineColor.r, params.lineColor.g, params.lineColor.b,
         (1.0-i/params.maxRectN.val)*255
-      )));
-      i++;
+      ));
+      p.translate(p.width/2, p.height/2);
+      p.scale(rectRate((p.frameCount-i*popPeriodFrame)%periodFrame));
+      p.rect(-rect_width/2, -rect_height/2, rect_width, rect_height);
+      p.pop();
     }
-    rects.forEach((r) => {
-      r.draw()
-    })
   }
 
   p.windowResized = () => {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
-    Rect.width = p.width-2*params.rectMargine.val;
-    Rect.height = p.height-2*params.rectMargine.val;
   }
 }
 

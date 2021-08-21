@@ -27,9 +27,25 @@ export const isColor = (arg: any): arg is Color => {
   return (typeof arg.r === 'number') && (typeof arg.g === 'number')
     && (typeof arg.b === 'number');
 }
+export const codeToColor = (code: string): Color => {
+  code = code.replace('#', '');
+  code = code.toUpperCase();
+  console.log(code);
+  const c: Color = {
+    r: parseInt(code[0]+code[1], 16),
+    g: parseInt(code[2]+code[3], 16),
+    b: parseInt(code[4]+code[5], 16)
+  }
+  console.log(c);
+  return c;
+}
 
 export type ParamGUIs = {
   [key: string]: p5.Element;
+}
+
+export const mod = (i: number, j: number): number => {
+  return (i % j) < 0 ? (i % j) + 0 + (j < 0 ? -j : j) : (i % j + 0);
 }
 
 export const frameToSecond = (frame: number): number => frame/FPS;
@@ -72,4 +88,15 @@ export const buildGUIs = (p5: p5, params: Object): ParamGUIs => {
     }
   });
   return paramGUIs;
+}
+
+export const updateGUIs = (params: Object, paramGUIs: ParamGUIs) => {
+  Object.entries(params).forEach(([key, value]) => {
+    if (isParamNum(value)) {
+      params[key].val = paramGUIs[key].value();
+    }else if (isColor(value)) {
+      let code: string = paramGUIs[key].value().toString();
+      params[key] = codeToColor(code);
+    }
+  });
 }
