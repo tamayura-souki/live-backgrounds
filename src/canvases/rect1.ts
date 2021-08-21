@@ -1,6 +1,7 @@
 import p5 from "p5";
 import { FPS } from "./modules/constants";
-import { ParamNum, Color, ParamGUIs, buildGUIs, updateGUIs} from "./modules/utils";
+import { ParamNum, Color } from "./modules/param";
+import { ParamGUIs, buildGUIs, updateGUIs } from "./modules/gui";
 import { easeInOutBack, frameToEaseX } from "./modules/easings";
 
 type Rect1Params = {
