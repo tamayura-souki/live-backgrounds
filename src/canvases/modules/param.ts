@@ -19,7 +19,7 @@ export const isColor = (arg: any): arg is Color => {
   return (typeof arg.r === 'number') && (typeof arg.g === 'number')
     && (typeof arg.b === 'number');
 }
-export const codeToColor = (code: string): Color => {
+export const hexToColor = (code: string): Color => {
   code = code.replace('#', '');
   code = code.toUpperCase();
   const c: Color = {

@@ -1,5 +1,5 @@
 import p5 from "p5";
-import { isParamNum, isColor, codeToColor } from "./param";
+import { isParamNum, isColor, hexToColor } from "./param";
 
 export type ParamGUIs = {
   [key: string]: p5.Element;
@@ -32,7 +32,7 @@ export const updateGUIs = (params: Object, paramGUIs: ParamGUIs) => {
       params[key].val = paramGUIs[key].value();
     }else if (isColor(value)) {
       let code: string = paramGUIs[key].value().toString();
-      params[key] = codeToColor(code);
+      params[key] = hexToColor(code);
     }
   });
 }
