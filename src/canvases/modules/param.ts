@@ -29,3 +29,34 @@ export const hexToColor = (code: string): Color => {
   }
   return c;
 }
+const colorElmToHex = (colorElm: number): string => {
+  return ("0" + colorElm.toString(16)).slice(-2);
+}
+export const colorToHex = (color: Color): string => {
+  return "#" + colorElmToHex(color.r) + colorElmToHex(color.g) + colorElmToHex(color.b);
+}
+
+export const paramsToURLParams = (params: Object): string => {
+  const URLParams = [];
+  Object.entries(params).forEach(([key, value]) => {
+    if (isParamNum(value)) {
+      URLParams.push(key+"="+value.val.toString());
+    } else if (isColor(value)) {
+      URLParams.push(key+"="+colorToHex(value).replace("#", ""));
+    }
+  });
+  return "?" + URLParams.join("&");
+}
+
+export const URLParamsToParams = (params: Object) => {
+  const URLParams = new URLSearchParams(window.location.search);
+  Object.entries(params).forEach(([key, value]) => {
+    const URLValue = URLParams.get(key);
+    if (!URLValue) return;
+    if (isParamNum(value)) {
+      params[key].val = Number(URLValue);
+    } else if (isColor(value)) {
+      params[key] = hexToColor(URLValue);
+    }
+  });
+}

@@ -1,7 +1,7 @@
 import p5 from "p5";
 import { FPS } from "./modules/constants";
-import { ParamNum, Color } from "./modules/param";
-import { ParamGUIs, buildGUIs, updateGUIs } from "./modules/gui";
+import { ParamNum, Color, URLParamsToParams } from "./modules/param";
+import { ParamGUIs, isHiddenGUIs, buildGUIs, updateGUIs } from "./modules/gui";
 import { easeInOutBack, frameToEaseX } from "./modules/easings";
 
 type Rect1Params = {
@@ -35,6 +35,8 @@ const sketch = (p: p5) => {
     maxRectN: {val: 8, min: 1, max: 50, isInt: true},
   }
 
+  URLParamsToParams(params);
+
   const lineWidth = 10;
   const rectMargine = 50;
 
@@ -66,14 +68,14 @@ const sketch = (p: p5) => {
 
     updateStat();
 
-    paramGUIs = buildGUIs(p, params);
+    if (!isHiddenGUIs()) paramGUIs = buildGUIs(p, params);
     p.strokeWeight(lineWidth);
     p.noFill();
   }
 
   p.draw = () => {
     p.clear();
-    updateGUIs(params, paramGUIs);
+    if (!isHiddenGUIs()) updateGUIs(params, paramGUIs);
     updateStat();
 
     for(let i=0; i < params.maxRectN.val; i++) {

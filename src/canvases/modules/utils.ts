@@ -6,6 +6,16 @@ export type Point = {
   y: number
 }
 
+export const parseBool = (s: string): boolean => {
+  if (!s) return false;
+  s = s.toLowerCase();
+  switch(s) {
+  case "true": return true;
+  case "false": return false;
+  }
+  return false;
+}
+
 export const mod = (i: number, j: number): number => {
   return (i % j) < 0 ? (i % j) + 0 + (j < 0 ? -j : j) : (i % j + 0);
 }
