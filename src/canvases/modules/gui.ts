@@ -22,15 +22,19 @@ export const buildGUIs = (p5: p5, params: Object): ParamGUIs => {
   let paramGUIs: ParamGUIs = {};
   let i: number = 0;
   Object.entries(params).forEach(([key, value]) => {
+    const p = p5.createP(key);
+    p.position(10, 30*i);
+    i++;
+
     if (isParamNum(value)) {
-      let slider = p5.createSlider(
+      const slider = p5.createSlider(
         value.min, value.max, value.val,
         value.isInt ? 1 : 0
       );
       slider.position(10, 30*i+10);
       paramGUIs[key] = slider;
     }else if (isColor(value)) {
-      let colorPicker = p5.createColorPicker(
+      const colorPicker = p5.createColorPicker(
         p5.color(value.r, value.g, value.b)
       );
       colorPicker.position(10, 30*i+10);
