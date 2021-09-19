@@ -15,6 +15,11 @@ export type Color = {
   g: number,
   b: number
 }
+
+export const eqColor = (color1: Color, color2: Color): boolean => {
+  return color1.r === color2.r && color1.g === color2.g && color1.b === color2.b;
+}
+
 export const isColor = (arg: any): arg is Color => {
   return (typeof arg.r === 'number') && (typeof arg.g === 'number')
     && (typeof arg.b === 'number');

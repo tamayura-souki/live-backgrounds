@@ -1,5 +1,5 @@
 import p5 from "p5";
-import { isParamNum, isColor, hexToColor, paramsToURLParams } from "./param";
+import { isParamNum, eqColor, isColor, hexToColor, paramsToURLParams } from "./param";
 import { parseBool } from "./utils";
 
 const hiddenGUI = "hiddenGUI";
@@ -48,13 +48,18 @@ export const buildGUIs = (p5: p5, params: Object): ParamGUIs => {
   return paramGUIs;
 }
 
-export const updateGUIs = (params: Object, paramGUIs: ParamGUIs) => {
+export const updateGUIs = (params: Object, paramGUIs: ParamGUIs): boolean => {
+  let isChanged = false;
   Object.entries(params).forEach(([key, value]) => {
     if (isParamNum(value)) {
+      isChanged = isChanged || params[key].val !== paramGUIs[key].value();
       params[key].val = paramGUIs[key].value();
     }else if (isColor(value)) {
-      let code: string = paramGUIs[key].value().toString();
-      params[key] = hexToColor(code);
+      const code: string = paramGUIs[key].value().toString();
+      const color = hexToColor(code)
+      isChanged = isChanged || !eqColor(params[key], color);
+      params[key] = color;
     }
   });
+  return isChanged;
 }
