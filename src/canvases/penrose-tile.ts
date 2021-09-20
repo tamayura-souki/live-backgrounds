@@ -7,6 +7,7 @@ type PenroseTileParams = {
   subdivisionsN: ParamNum;
   triangleN: ParamNum;
   ratio: ParamNum;
+  lineWidth: ParamNum;
   scale: ParamNum;
   color1: Color;
   color2: Color;
@@ -92,6 +93,7 @@ const sketch = (p: p5) => {
     subdivisionsN: {val: 8, min: 1, max: 10, isInt: true},
     triangleN: {val: 10, min: 3, max: 15, isInt: true},
     ratio: {val: 1.0, min: 0.2, max: 2, isInt: false},
+    lineWidth: {val: 1, min: 0, max: 10, isInt: true},
     scale: {val: 1.0, min: 0.1, max: 1.8, isInt: false},
     color1: {r: 255, g:255, b: 255},
     color2: {r: 255, g:255, b: 255},
@@ -104,6 +106,7 @@ const sketch = (p: p5) => {
   let triangleN: number;
   let radius: number;
   let ratio: number;
+  let lineWidth: number;
   let color1: p5.Color;
   let color2: p5.Color;
   let lineColor: p5.Color;
@@ -113,6 +116,7 @@ const sketch = (p: p5) => {
     triangleN = params.triangleN.val;
     radius = 0.6 * p.width * params.scale.val;
     ratio = goldenRatio * params.ratio.val;
+    lineWidth = params.lineWidth.val;
     color1 = p.color(params.color1.r, params.color1.g, params.color1.b);
     color2 = p.color(params.color2.r, params.color2.g, params.color2.b);
     lineColor = p.color(params.lineColor.r, params.lineColor.g, params.lineColor.b);
@@ -153,6 +157,7 @@ const sketch = (p: p5) => {
     })
 
     p.stroke(lineColor);
+    p.strokeWeight(lineWidth);
     triangles.forEach((tri) => {
       drawOutLine(p, tri);
     })
