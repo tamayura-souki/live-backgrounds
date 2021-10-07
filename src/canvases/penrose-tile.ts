@@ -3,6 +3,11 @@ import { FPS } from "./modules/constants";
 import { ParamGUIs, isHiddenGUIs, buildGUIs, updateGUIs } from "./modules/gui";
 import { ParamNum, Color, URLParamsToParams } from "./modules/param";
 
+/* 参考元
+  Penrose Tiling Explained
+  https://preshing.com/20110831/penrose-tiling-explained/
+*/
+
 type PenroseTileParams = {
   subdivisionsN: ParamNum;
   triangleN: ParamNum;
