@@ -75,3 +75,42 @@ export abstract class StillSketch extends Sketch {
     }
   }
 }
+
+// アニメーション用の抽象クラス
+export abstract class AnimationSketch extends Sketch {
+  sketch(p: p5) {
+    if (this.params) {
+      URLParamsToParams(this.params);
+    }
+
+    let isGUIShown = this.params && !isGUIHidden();
+    let prepareGUI = isGUIShown ? () => {
+      this.paramsGUI = buildGUI(p, this.params);
+    } : () => {};
+    let handleGUI = isGUIShown ? () => {
+      if(updateParamsByGUI(this.params, this.paramsGUI)) {
+        this.updateStat(p);
+      }
+    } : () => {};
+
+    p.setup = () => {
+      p.createCanvas(p.windowWidth, p.windowHeight);
+      p.frameRate(FPS);
+
+      prepareGUI();
+
+      this.setup(p);
+      this.updateStat(p);
+    }
+
+    p.draw = () => {
+      handleGUI();
+      this.draw(p);
+    };
+
+    p.windowResized = () => {
+      p.resizeCanvas(p.windowWidth, p.windowHeight);
+      this.updateStat(p);
+    }
+  }
+}
