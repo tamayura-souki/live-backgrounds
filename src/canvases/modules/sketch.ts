@@ -43,6 +43,11 @@ export abstract class StillSketch extends Sketch {
       URLParamsToParams(this.params);
     }
 
+    const updateStat = (p: p5) => {
+      this.updateStat(p);
+      this.draw(p);
+    }
+
     let isGUIShown = this.params && !isGUIHidden();
     let prepareGUI = isGUIShown ? () => {
       this.paramsGUI = buildGUI(p, this.params);
@@ -52,11 +57,6 @@ export abstract class StillSketch extends Sketch {
         updateStat(p);
       }
     } : () => {};
-
-    const updateStat = (p: p5) => {
-      this.updateStat(p);
-      this.draw(p);
-    }
 
     p.setup = () => {
       p.createCanvas(p.windowWidth, p.windowHeight);
