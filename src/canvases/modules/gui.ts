@@ -2,24 +2,24 @@ import p5 from "p5";
 import { isParamNum, eqColor, isColor, hexToColor, paramsToURLParams } from "./param";
 import { parseBool } from "./utils";
 
-const hiddenGUI = "hiddenGUI";
+const hideGUI = "hideGUI";
 
-export type ParamGUIs = {
+export type ParamsGUI = {
   [key: string]: p5.Element;
 }
 
-export const isHiddenGUIs = (): boolean => {
+export const isGUIHidden = (): boolean => {
   const URLParams = new URLSearchParams(window.location.search);
-  return parseBool(URLParams.get(hiddenGUI));
+  return parseBool(URLParams.get(hideGUI));
 }
 
 const copyURLwithParam = (params: Object) => {
-  const URLParams = paramsToURLParams(params) + "&" + hiddenGUI + "=true";
+  const URLParams = paramsToURLParams(params) + "&" + hideGUI + "=true";
   navigator.clipboard.writeText(location.origin+location.pathname+URLParams);
 }
 
-export const buildGUIs = (p5: p5, params: Object): ParamGUIs => {
-  let paramGUIs: ParamGUIs = {};
+export const buildGUI = (p5: p5, params: Object): ParamsGUI => {
+  let paramsGUI: ParamsGUI = {};
   let i: number = 0;
   Object.entries(params).forEach(([key, value]) => {
     const p = p5.createP(key);
@@ -32,30 +32,30 @@ export const buildGUIs = (p5: p5, params: Object): ParamGUIs => {
         value.isInt ? 1 : 0
       );
       slider.position(10, 30*i+10);
-      paramGUIs[key] = slider;
+      paramsGUI[key] = slider;
     }else if (isColor(value)) {
       const colorPicker = p5.createColorPicker(
         p5.color(value.r, value.g, value.b)
       );
       colorPicker.position(10, 30*i+10);
-      paramGUIs[key] = colorPicker;
+      paramsGUI[key] = colorPicker;
     }
     i++;
   });
-  paramGUIs["button"] = p5.createButton("copy url");
-  paramGUIs["button"].position(10,30*i+10);
-  paramGUIs["button"].mousePressed(()=>{copyURLwithParam(params)});
-  return paramGUIs;
+  paramsGUI["button"] = p5.createButton("copy url");
+  paramsGUI["button"].position(10,30*i+10);
+  paramsGUI["button"].mousePressed(()=>{copyURLwithParam(params)});
+  return paramsGUI;
 }
 
-export const updateGUIs = (params: Object, paramGUIs: ParamGUIs): boolean => {
+export const updateParamsByGUI = (params: Object, paramsGUI: ParamsGUI): boolean => {
   let isChanged = false;
   Object.entries(params).forEach(([key, value]) => {
     if (isParamNum(value)) {
-      isChanged = isChanged || params[key].val !== paramGUIs[key].value();
-      params[key].val = paramGUIs[key].value();
+      isChanged = isChanged || params[key].val !== paramsGUI[key].value();
+      params[key].val = paramsGUI[key].value();
     }else if (isColor(value)) {
-      const code: string = paramGUIs[key].value().toString();
+      const code: string = paramsGUI[key].value().toString();
       const color = hexToColor(code)
       isChanged = isChanged || !eqColor(params[key], color);
       params[key] = color;

@@ -1,7 +1,7 @@
 import p5 from "p5";
 import { FPS } from "./modules/constants";
 import { ParamNum, Color, URLParamsToParams } from "./modules/param";
-import { ParamGUIs, isHiddenGUIs, buildGUIs, updateGUIs } from "./modules/gui";
+import { ParamsGUI, isGUIHidden, buildGUI, updateParamsByGUI } from "./modules/gui";
 
 type ColorParams = {
   color: Color;
@@ -21,19 +21,19 @@ const sketch = (p: p5) => {
     color = p.color(params.color.r, params.color.g, params.color.b, params.alpha.val);
   }
 
-  let paramGUIs: ParamGUIs;
+  let paramsGUI: ParamsGUI;
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.frameRate(FPS);
 
     updateStat();
 
-    if (!isHiddenGUIs()) paramGUIs = buildGUIs(p, params);
+    if (!isGUIHidden()) paramsGUI = buildGUI(p, params);
   }
 
   p.draw = () => {
     p.clear()
-    if (!isHiddenGUIs()) updateGUIs(params, paramGUIs);
+    if (!isGUIHidden()) updateParamsByGUI(params, paramsGUI);
     updateStat();
 
     p.background(color);

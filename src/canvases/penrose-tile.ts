@@ -1,6 +1,6 @@
 import p5 from "p5";
 import { FPS } from "./modules/constants";
-import { ParamGUIs, isHiddenGUIs, buildGUIs, updateGUIs } from "./modules/gui";
+import { ParamsGUI, isGUIHidden, buildGUI, updateParamsByGUI } from "./modules/gui";
 import { ParamNum, Color, URLParamsToParams } from "./modules/param";
 
 /* 参考元
@@ -127,21 +127,21 @@ const sketch = (p: p5) => {
     lineColor = p.color(params.lineColor.r, params.lineColor.g, params.lineColor.b);
   }
 
-  let paramGUIs: ParamGUIs;
+  let paramsGUI: ParamsGUI;
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.frameRate(FPS);
 
     updateStat();
-    if (!isHiddenGUIs()) paramGUIs = buildGUIs(p, params);
+    if (!isGUIHidden()) paramsGUI = buildGUI(p, params);
 
     triangles = makeTriangles(p, params.subdivisionsN.val, triangleN, ratio, radius);
   }
 
   p.draw = () => {
     p.clear();
-    if (!isHiddenGUIs()) {
-      if (updateGUIs(params, paramGUIs)) {
+    if (!isGUIHidden()) {
+      if (updateParamsByGUI(params, paramsGUI)) {
         triangles = makeTriangles(
           p, params.subdivisionsN.val, triangleN, ratio, radius
         );
