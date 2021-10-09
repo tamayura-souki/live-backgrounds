@@ -1,48 +1,30 @@
 import p5 from "p5";
-import { FPS } from "./modules/constants";
-import { ParamNum, Color, URLParamsToParams } from "./modules/param";
-import { ParamsGUI, isGUIHidden, buildGUI, updateParamsByGUI } from "./modules/gui";
+import { ParamNum, Color } from "./modules/param";
+import { StillSketch } from "./modules/sketch";
 
 type ColorParams = {
   color: Color;
   alpha: ParamNum;
 }
 
-const sketch = (p: p5) => {
-  let params: ColorParams = {
+class OneColor extends StillSketch {
+  params: ColorParams = {
     color: {r: 0, g: 255, b: 0 },
     alpha: {val: 255, min: 0, max: 255, isInt: true},
   }
+  color: p5.Color;
 
-  URLParamsToParams(params);
+  updateStat = (p: p5) => {
+    const col = this.params.color;
+    this.color = p.color(col.r, col.g, col.b, this.params.alpha.val);
+  };
 
-  let color;
-  const updateStat = () => {
-    color = p.color(params.color.r, params.color.g, params.color.b, params.alpha.val);
-  }
+  setup = (p: p5) => {};
 
-  let paramsGUI: ParamsGUI;
-  p.setup = () => {
-    p.createCanvas(p.windowWidth, p.windowHeight);
-    p.frameRate(FPS);
-
-    updateStat();
-
-    if (!isGUIHidden()) paramsGUI = buildGUI(p, params);
-  }
-
-  p.draw = () => {
-    p.clear()
-    if (!isGUIHidden()) updateParamsByGUI(params, paramsGUI);
-    updateStat();
-
-    p.background(color);
-  }
-
-
-  p.windowResized = () => {
-    p.resizeCanvas(p.windowWidth, p.windowHeight);
-  }
+  draw = (p: p5) => {
+    p.clear();
+    p.background(this.color);
+  };
 }
 
-new p5(sketch);
+new OneColor().showSketch();
