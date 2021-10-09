@@ -10,17 +10,14 @@ abstract class Sketch {
   paramsGUI: ParamsGUI | null;
   readonly p5instance: p5;
 
-  constructor() {
- }
+  // パラメータが変更されて
+  // ステータスを更新しないといけないときに呼ばれる
+  abstract updateStat(p: p5): void;
 
   // 最初に1度だけ呼び出される処理
   abstract setup(p: p5): void;
   // 画面更新の処理
   abstract draw(p: p5): void;
-
-  // パラメータが変更されて
-  // ステータスを更新しないといけないときに呼ばれる
-  abstract updateStat(p: p5): void;
 
   // p5jsのインスタンスつくるためのやつ;
   abstract sketch(p: p5): void;
