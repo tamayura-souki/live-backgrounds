@@ -1,30 +1,28 @@
 import p5 from "p5";
-import { FPS } from "./modules/constants";
+import { AnimationSketch } from "./modules/sketch";
 
-const sketch = (p: p5) => {
-  const v: number = 1.0;
-  const seed1: number = 10;
-  const length: number = 200;
+class Noise1 extends AnimationSketch {
+  params: Object = null;
 
-  p.setup = () => {
-    p.createCanvas(p.windowWidth, p.windowHeight);
-    p.frameRate(FPS);
-  }
+  readonly v: number = 1.0;
+  readonly seed1: number = 10;
+  readonly length: number = 200;
 
-  p.draw = () => {
+  updateStat(p: p5): void {}
+  setup(p: p5): void {}
+  draw(p: p5): void {
     p.clear();
 
     for(let y=0; y<p.width; y++) {
-      let noise = p.noise((p.frameCount+y)*v%length, p.random(0, seed1));
+      let noise = p.noise(
+        (p.frameCount+y)*this.v%length,
+        p.random(0, this.seed1)
+      );
       p.strokeWeight(1);
       p.stroke(noise*255);
       p.line(0, y, p.width, y);
     }
- }
-
-  p.windowResized = () => {
-    p.resizeCanvas(p.windowWidth, p.windowHeight);
   }
 }
 
-new p5(sketch);
+new Noise1().showSketch();

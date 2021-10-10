@@ -1,7 +1,13 @@
 import p5 from "p5";
-import { FPS } from "./modules/constants";
-import { ParamGUIs, isHiddenGUIs, buildGUIs, updateGUIs } from "./modules/gui";
-import { ParamNum, Color, URLParamsToParams } from "./modules/param";
+import { ParamNum, Color } from "./modules/param";
+import { StillSketch } from "./modules/sketch";
+import { Triangle, drawTriangle, drawPartialOutline } from "./modules/triangle";
+import { makeTriangles } from "./modules/penrose-tile";
+
+/* 参考元
+  Penrose Tiling Explained
+  https://preshing.com/20110831/penrose-tiling-explained/
+*/
 
 type PenroseTileParams = {
   subdivisionsN: ParamNum;
@@ -14,82 +20,8 @@ type PenroseTileParams = {
   lineColor: Color;
 }
 
-type Triangle = {
-  isColor2: boolean,
-  v1: p5.Vector,
-  v2: p5.Vector,
-  v3: p5.Vector,
-}
-
-const subdivide = (triangles: Triangle[], ratio: number): Triangle[] => {
-  const subdividedTriangles:Triangle[] = [];
-  triangles.forEach(tri => {
-    if (tri.isColor2) {
-      const P = tri.v2.copy().add(tri.v1.copy().sub(tri.v2).div(ratio));
-      const Q = tri.v2.copy().add(tri.v3.copy().sub(tri.v2).div(ratio));
-      subdividedTriangles.push({
-        isColor2: true, v1: Q, v2: tri.v3, v3: tri.v1
-      });
-      subdividedTriangles.push({
-        isColor2: true, v1: P, v2: Q, v3: tri.v2
-      });
-      subdividedTriangles.push({
-        isColor2: false, v1: Q, v2: P, v3: tri.v1
-      });
-
-    } else {
-      const R = tri.v1.copy().add(tri.v2.copy().sub(tri.v1).div(ratio));
-      subdividedTriangles.push({
-        isColor2: false, v1: tri.v3, v2: R, v3: tri.v2
-      });
-      subdividedTriangles.push({
-        isColor2: true, v1: R, v2: tri.v3, v3: tri.v1
-      });
-    }
-  });
-
-  return subdividedTriangles;
-}
-
-const makeInitTriangle = (p: p5, i: number, n: number, radius: number): Triangle => {
-  const v1 = p.createVector(0, 0);
-  const v2Ang = (2*i-1) * p.PI / n;
-  const v2 = p.createVector(p.cos(v2Ang), p.sin(v2Ang)).mult(radius);
-  const v3Ang = (2*i+1) * p.PI / n;
-  const v3 = p.createVector(p.cos(v3Ang), p.sin(v3Ang)).mult(radius);
-  if (i % 2 == 0) {
-    return {isColor2: false, v1: v1, v2: v3, v3: v2};
-  } else {
-    return {isColor2: false, v1: v1, v2: v2, v3: v3};
-  }
-}
-
-const makeTriangles = (
-  p: p5,
-  subdivisionsN: number,
-  triangleN: number,
-  ratio: number,
-  radius: number
-): Triangle[] => {
-  const makeTri = (i: number) => makeInitTriangle(p, i, triangleN, radius);
-  let triangles = Array.from(Array(triangleN), (v, i) => i).map((v) => makeTri(v));
-  for (let i = 0; i < subdivisionsN; i++) {
-    triangles = subdivide(triangles, ratio);
-  }
-  return triangles;
-}
-
-const drawTriangle = (p: p5, tri: Triangle) => {
-  p.triangle(tri.v1.x, tri.v1.y, tri.v2.x, tri.v2.y, tri.v3.x, tri.v3.y);
-}
-
-const drawOutLine = (p: p5, tri: Triangle) => {
-  p.line(tri.v3.x, tri.v3.y, tri.v1.x, tri.v1.y);
-  p.line(tri.v1.x, tri.v1.y, tri.v2.x, tri.v2.y);
-}
-
-const sketch = (p: p5) => {
-  let params: PenroseTileParams = {
+class PenroseTile extends StillSketch {
+   params: PenroseTileParams = {
     subdivisionsN: {val: 8, min: 1, max: 10, isInt: true},
     triangleN: {val: 10, min: 3, max: 15, isInt: true},
     ratio: {val: 1.0, min: 0.2, max: 2, isInt: false},
@@ -100,72 +32,54 @@ const sketch = (p: p5) => {
     lineColor: {r: 0, g:0, b: 0},
   }
 
-  URLParamsToParams(params);
+  goldenRatio: number;
+  triangleN: number;
+  radius: number;
+  ratio: number;
+  lineWidth: number;
+  color1: p5.Color;
+  color2: p5.Color;
+  lineColor: p5.Color;
+  triangles: Triangle[];
 
-  const goldenRatio = (1 + p.sqrt(5)) / 2;
-  let triangleN: number;
-  let radius: number;
-  let ratio: number;
-  let lineWidth: number;
-  let color1: p5.Color;
-  let color2: p5.Color;
-  let lineColor: p5.Color;
-  let triangles: Triangle[];
+  updateStat(p: p5): void {
+    this.triangleN = this.params.triangleN.val;
+    this.radius = 0.6 * p.width * this.params.scale.val;
+    this.ratio = this.goldenRatio * this.params.ratio.val;
+    this.lineWidth = this.params.lineWidth.val;
 
-  const updateStat = () => {
-    triangleN = params.triangleN.val;
-    radius = 0.6 * p.width * params.scale.val;
-    ratio = goldenRatio * params.ratio.val;
-    lineWidth = params.lineWidth.val;
-    color1 = p.color(params.color1.r, params.color1.g, params.color1.b);
-    color2 = p.color(params.color2.r, params.color2.g, params.color2.b);
-    lineColor = p.color(params.lineColor.r, params.lineColor.g, params.lineColor.b);
+    const col1 = this.params.color1, col2 = this.params.color2;
+    const lineCol = this.params.lineColor;
+    this.color1 = p.color(col1.r, col1.g, col1.b);
+    this.color2 = p.color(col2.r, col2.g, col2.b);
+    this.lineColor = p.color(lineCol.r, lineCol.g, lineCol.b);
+
+    this.triangles = makeTriangles(
+      p, this.params.subdivisionsN.val, this.triangleN, this.ratio, this.radius
+    );
   }
-
-  let paramGUIs: ParamGUIs;
-  p.setup = () => {
-    p.createCanvas(p.windowWidth, p.windowHeight);
-    p.frameRate(FPS);
-
-    updateStat();
-    if (!isHiddenGUIs()) paramGUIs = buildGUIs(p, params);
-
-    triangles = makeTriangles(p, params.subdivisionsN.val, triangleN, ratio, radius);
+  setup(p: p5): void {
+    this.goldenRatio = (1 + p.sqrt(5)) / 2;
   }
-
-  p.draw = () => {
-    p.clear();
-    if (!isHiddenGUIs()) {
-      if (updateGUIs(params, paramGUIs)) {
-        triangles = makeTriangles(
-          p, params.subdivisionsN.val, triangleN, ratio, radius
-        );
-      }
-    }
-    updateStat();
-
+  draw(p: p5): void {
     p.translate(p.width/2, p.height/2);
 
     p.noStroke();
-    triangles.forEach((tri) => {
+    this.triangles.forEach((tri) => {
       if (tri.isColor2) {
-        p.fill(color2);
+        p.fill(this.color2);
       } else {
-        p.fill(color1);
+        p.fill(this.color1);
       }
       drawTriangle(p, tri);
     })
 
-    p.stroke(lineColor);
-    p.strokeWeight(lineWidth);
-    triangles.forEach((tri) => {
-      drawOutLine(p, tri);
+    p.stroke(this.lineColor);
+    p.strokeWeight(this.lineWidth);
+    this.triangles.forEach((tri) => {
+      drawPartialOutline(p, tri);
     })
-  }
-
-  p.windowResized = () => {
-    p.resizeCanvas(p.windowWidth, p.windowHeight);
   }
 }
 
-new p5(sketch);
+new PenroseTile().showSketch();

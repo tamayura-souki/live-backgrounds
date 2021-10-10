@@ -1,6 +1,7 @@
 import p5 from "p5";
-import { FPS, TAMAYURA_BLUE } from "./modules/constants";
+import { TAMAYURA_BLUE } from "./modules/constants";
 import { Point, nGon } from "./modules/utils";
+import { AnimationSketch } from "./modules/sketch";
 
 // 波紋
 class Ripple {
@@ -42,39 +43,37 @@ class Ripple {
   }
 }
 
-const sketch = (p: p5) => {
-  const rRate: number = 0.42;
-  const v: number = 0.4;
-  const lineColor: p5.Color = p.color(TAMAYURA_BLUE);
-  const ripple: Array<Ripple> = [];
+class MagicCircle1 extends AnimationSketch {
+  params: Object = null;
 
-  const magicCircle = (count: number) => {
+  readonly rRate: number = 0.42;
+  readonly v: number = 0.4;
+  readonly ripple: Array<Ripple> = [];
+  lineColor: p5.Color;
+
+  magicCircle(p: p5, count: number): void {
     p.strokeWeight(p.height*0.01);
-    p.stroke(lineColor);
+    p.stroke(this.lineColor);
     p.noFill();
 
     const pos = {x: p.width/2, y: p.height/2};
-    nGon(p, 3, pos, p.height*rRate, v*count);
-    nGon(p, 4, pos, p.height*rRate, -v*count);
+    nGon(p, 3, pos, p.height*this.rRate, this.v*count);
+    nGon(p, 4, pos, p.height*this.rRate, -this.v*count);
   }
 
-  p.setup = () => {
-    p.createCanvas(p.windowWidth, p.windowHeight);
-    p.frameRate(FPS);
+  updateStat(p: p5): void {}
+  setup(p: p5): void {
+    this.lineColor = p.color(TAMAYURA_BLUE);
     for(let i=0; i<3; i++) {
-      ripple.push(new Ripple());
+      this.ripple.push(new Ripple());
     }
-  };
-
-  p.draw = () => {
-    p.clear();
-    magicCircle(p.frameCount);
-    ripple.forEach(r => {r.draw(p)});
-  };
-
-  p.windowResized = () => {
-    p.resizeCanvas(p.windowWidth, p.windowHeight);
   }
-};
 
-new p5(sketch);
+  draw(p: p5): void {
+    p.clear();
+    this.magicCircle(p, p.frameCount);
+    this.ripple.forEach(r => {r.draw(p)});
+  }
+}
+
+new MagicCircle1().showSketch();
