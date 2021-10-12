@@ -6,6 +6,14 @@ export type Point = {
   y: number
 }
 
+export const distance = (p: p5, a: Point, b: Point): number => {
+  return p.sqrt((a.x-b.x)**2 + (a.y-b.y)**2)
+}
+
+export const isNear = (r: number, a: Point, b: Point): boolean => {
+  return ((a.x-b.x)**2 + (a.y-b.y)**2 < r**2);
+}
+
 export const parseBool = (s: string): boolean => {
   if (!s) return false;
   s = s.toLowerCase();
