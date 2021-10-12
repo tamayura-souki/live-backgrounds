@@ -15,7 +15,7 @@ class Noise1 extends AnimationSketch {
 
     for(let y=0; y<p.width; y++) {
       let noise = p.noise(
-        (p.frameCount+y)*this.v%length,
+        (p.frameCount+y)*this.v%this.length,
         p.random(0, this.seed1)
       );
       p.strokeWeight(1);
