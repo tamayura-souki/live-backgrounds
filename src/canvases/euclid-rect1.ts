@@ -1,5 +1,5 @@
 import p5 from "p5";
-import { ParamNum, Color } from "./modules/param";
+import { ParamNum, Color, rgbToHSB } from "./modules/param";
 import { StillSketch } from "./modules/sketch";
 
 /* 参考元
@@ -8,25 +8,43 @@ import { StillSketch } from "./modules/sketch";
 */
 
 type EuclidRect1Params = {
+  ratio: ParamNum;
+  ratio2: ParamNum;
+  thr: ParamNum;
+  lineColor: Color;
+  lineWidth: ParamNum;
+  // パラメータ増やすか考える
 }
 
 class EuclidRect1 extends StillSketch {
-  params: EuclidRect1Params = {};
+  params: EuclidRect1Params = {
+    ratio: {val: 0.6, min: 0.2, max: 1.1, isInt: false},
+    ratio2: {val: 1.0, min: 0.0, max: 2.0, isInt: false},
+    thr: {val: 50, min: 10, max: 320, isInt: true},
+    lineColor: {r: 0, g: 0, b: 0},
+    lineWidth: {val: 1.0, min: 0.0, max: 20.0, isInt: true},
+  };
 
-  readonly numA: number = 10;
-  readonly numB: number = 6;
-  readonly ratio: number = this.numB / this.numA;
-
-  readonly thr: number = 50;
+  ratio: number;
+  thr: number;
+  lineColor: p5.Color;
+  lineWidth: number;
 
   updateStat(p: p5): void {
+    this.ratio = this.params.ratio.val + this.params.ratio2.val;
+    this.thr = this.params.thr.val;
+    let lineCol = rgbToHSB(this.params.lineColor);
+    this.lineColor = p.color(lineCol.r, lineCol.g, lineCol.b);
+    this.lineWidth = this.params.lineWidth.val;
   }
 
   setup(p: p5): void {
-    p.colorMode(p.HSB, 1);
   }
 
   draw(p: p5): void {
+    p.stroke(this.lineColor);
+    p.strokeWeight(this.lineWidth);
+    p.colorMode(p.HSB, 1);
     this.divSquare(p, 0, 0, p.max(p.width, p.height));
   }
 
