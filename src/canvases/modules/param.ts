@@ -40,6 +40,31 @@ const colorElmToHex = (colorElm: number): string => {
 export const colorToHex = (color: Color): string => {
   return "#" + colorElmToHex(color.r) + colorElmToHex(color.g) + colorElmToHex(color.b);
 }
+export const rgbToHue = (color: Color): number => {
+  if(color.r > color.g && color.r > color.b) {
+    let minCol = (color.g>color.b) ? color.b : color.g;
+    return 60 * ((color.g-color.b)/(color.r-minCol));
+  }
+  if(color.g > color.b && color.g > color.r) {
+    let minCol = (color.b>color.r) ? color.r : color.b;
+    return 60 * ((color.b-color.r)/(color.g-minCol)) + 120;
+  }
+  if(color.b > color.r && color.b > color.g) {
+    let minCol = (color.r>color.g) ? color.g : color.r;
+    return 60 * ((color.r-color.g)/(color.b -minCol)) + 240;
+  }
+}
+// hsb 各値 0~1に収まるように返します
+export const rgbToHSB = (color: Color): Color => {
+  let minCol = Math.min(color.r, color.b, color.g);
+  let maxCol = Math.max(color.r, color.b, color.g);
+  let hsbCol: Color = {
+    r: rgbToHue(color)/360,
+    g: (maxCol-minCol) / maxCol,
+    b: maxCol / 255
+  };
+  return hsbCol;
+}
 
 export const paramsToURLParams = (params: Object): string => {
   const URLParams = [];
