@@ -13,7 +13,12 @@ type EuclidRect1Params = {
   thr: ParamNum;
   lineColor: Color;
   lineWidth: ParamNum;
-  // パラメータ増やすか考える
+  hueMax: ParamNum;
+  hueMin: ParamNum;
+  saturationMax: ParamNum;
+  saturationMin: ParamNum;
+  brightnessMax: ParamNum;
+  brightnessMin: ParamNum;
 }
 
 class EuclidRect1 extends StillSketch {
@@ -23,12 +28,24 @@ class EuclidRect1 extends StillSketch {
     thr: {val: 50, min: 10, max: 320, isInt: true},
     lineColor: {r: 0, g: 0, b: 0},
     lineWidth: {val: 1.0, min: 0.0, max: 20.0, isInt: true},
+    hueMax: {val: 1.0, min: 0.0, max: 1.0, isInt: false},
+    hueMin: {val: 0.0, min: 0.0, max: 1.0, isInt: false},
+    saturationMax: {val: 0.5, min: 0.0, max: 1.0, isInt: false},
+    saturationMin: {val: 0.3, min: 0.0, max: 1.0, isInt: false},
+    brightnessMax: {val: 1.0, min: 0.0, max: 1.0, isInt: false},
+    brightnessMin: {val: 1.0, min: 0.0, max: 1.0, isInt: false},
   };
 
   ratio: number;
   thr: number;
   lineColor: p5.Color;
   lineWidth: number;
+  hueMax: number;
+  hueMin: number;
+  saturationMax: number;
+  saturationMin: number;
+  brightnessMax: number;
+  brightnessMin: number;
 
   updateStat(p: p5): void {
     this.ratio = this.params.ratio.val + this.params.ratio2.val;
@@ -36,15 +53,29 @@ class EuclidRect1 extends StillSketch {
     let lineCol = rgbToHSB(this.params.lineColor);
     this.lineColor = p.color(lineCol.r, lineCol.g, lineCol.b);
     this.lineWidth = this.params.lineWidth.val;
+    this.hueMax = this.params.hueMax.val;
+    this.hueMin = this.params.hueMin.val;
+    this.saturationMax = this.params.saturationMax.val;
+    this.saturationMin = this.params.saturationMin.val;
+    this.brightnessMax = this.params.brightnessMax.val;
+    this.brightnessMin = this.params.brightnessMin.val;
+  }
+
+  getColor(p: p5): p5.Color {
+    return p.color(
+      p.random(this.hueMin,this.hueMax),
+      p.random(this.saturationMin, this.saturationMax),
+      p.random(this.brightnessMin, this.brightnessMax),
+    );
   }
 
   setup(p: p5): void {
+    p.colorMode(p.HSB, 1);
   }
 
   draw(p: p5): void {
     p.stroke(this.lineColor);
     p.strokeWeight(this.lineWidth);
-    p.colorMode(p.HSB, 1);
     this.divSquare(p, 0, 0, p.max(p.width, p.height));
   }
 
@@ -52,7 +83,7 @@ class EuclidRect1 extends StillSketch {
     let itr: number = 0;
     let xEndPos: number = wd + xPos;
     let yEndPos: number = wd + yPos;
-    p.fill(p.color(p.random(0,1), p.random(0, 1.0), p.random(1.0, 1.0)));
+    p.fill(this.getColor(p));
     p.rect(xPos, yPos, wd, wd);
 
     while (wd > this.thr) {
@@ -77,7 +108,7 @@ class EuclidRect1 extends StillSketch {
     let itr: number = 0;
     let xEndPos: number = xPos + wd;
     let yEndPos: number = yPos + wd / this.ratio;
-    p.fill(p.color(p.random(0,1), p.random(0, 1.0), p.random(1.0, 1.0)));
+    p.fill(this.getColor(p));
     p.rect(xPos, yPos, wd, wd / this.ratio);
 
     while(wd > this.thr) {
